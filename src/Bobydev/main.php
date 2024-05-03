@@ -1,39 +1,59 @@
-name: PHP Composer
+<?php
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+namespace Bobydev;
 
-permissions:
-  contents: read
+use pocketmine\Server;
+use pocketmine\plugin\PluginBase;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
+use pocketmine\entity\effect\EffectInstance;
+use pocketmine\entity\effect\VanillaEffects;
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\player\PlayerItemHeldEvent;
+use pocketmine\item\VanillaItems;
 
-jobs:
-  build:
+class Main extends PluginBase implements Listener {
 
-    runs-on: ubuntu-latest
+    public function onEnable(): void {
+        $this->getLogger()->info("Bobydev plugin has been enabled");
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+    }
 
-    steps:
-    - uses: actions/checkout@v4
+    public function onDisable(): void {
+        $this->getLogger()->info("Bobydev plugin has been disabled");
+    }
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+    public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool {
+        if($cmd->getName() === "bditem"){
+            if($sender instanceof Player && $sender->hasPermission("bditem.cmd")){
+                $emerald = VanillaItems::EMERALD()->setCustomName("Magic Emerald");
+                $sender->getInventory()->addItem($emerald);
+                $sender->sendMessage("You have been given the Magic Emerald!");
+            } else {
+                $sender->sendMessage("You don't have permission to use this command");
+            }
+            return true;
+        }
+        return false;
+    }
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+   public function onItemHeld(PlayerItemHeldEvent $event): void {
+    $player = $event->getPlayer();
+    $item = $event->getItem();
+    if($item->getCustomName() === "Magic Emerald"){
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
+        $hasteEffect = new EffectInstance(VanillaEffects::HASTE(), 20 * 60 * 20, 1, true);
+        $player->getEffects()->add($hasteEffect);       
+        $speedEffect = new EffectInstance(VanillaEffects::SPEED(), 20 * 60 * 20, 3, true);
+        $player->getEffects()->add($speedEffect);
+        $jumpBoostEffect = new EffectInstance(VanillaEffects::JUMP_BOOST(), 20 * 60 * 20, 3, true);
+        $player->getEffects()->add($jumpBoostEffect);
+    } else {        
+        $player->getEffects()->remove(VanillaEffects::HASTE());
+        $player->getEffects()->remove(VanillaEffects::SPEED());
+        $player->getEffects()->remove(VanillaEffects::JUMP_BOOST());
+    }
+  }
+}
