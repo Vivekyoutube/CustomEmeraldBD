@@ -8,10 +8,10 @@ description: "Official Plugin Made By Bobydev,dc user name : bobybhai"
 
 commands:
    bditem:
-     description: Open Farmer UI Menu
+     description: You successfully access bditem 
      permission: bditem.cmd
      
 permissions:
   bditem.cmd:
-    description: Permission to use farmer command
+    description: Permission to use Bditem command
     default: true
