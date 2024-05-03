@@ -1,0 +1,17 @@
+name: CustomEmeraldBD
+api: 5.0.0
+version: 1.0.0
+author: Bobydev
+main: Bobydev\Main
+
+description: "Official Plugin Made By Bobydev,dc user name : bobybhai"
+
+commands:
+   bditem:
+     description: Open Farmer UI Menu
+     permission: bditem.cmd
+     
+permissions:
+  bditem.cmd:
+    description: Permission to use farmer command
+    default: true
